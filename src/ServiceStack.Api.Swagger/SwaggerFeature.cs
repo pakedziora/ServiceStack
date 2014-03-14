@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.RegularExpressions;
 using ServiceStack.Host.Handlers;
 
@@ -21,6 +21,22 @@ namespace ServiceStack.Api.Swagger
 
         public Action<ModelProperty> ModelPropertyFilter { get; set; }
 
+        private readonly string _swaggerFolderName;
+
+        private readonly string _swaggerLinkText;
+
+
+        public SwaggerFeature()
+            : this("swagger-ui", "Swagger UI")
+        {
+        }
+
+        public SwaggerFeature(string swaggerFolderName, string swaggerLinkText)
+        {
+            _swaggerFolderName = swaggerFolderName;
+            _swaggerLinkText = swaggerLinkText;
+        }
+
         public void Register(IAppHost appHost)
         {
             if (ResourceFilterPattern != null)
@@ -36,13 +52,13 @@ namespace ServiceStack.Api.Swagger
             appHost.RegisterService(typeof(SwaggerApiService), new[] { SwaggerResourcesService.RESOURCE_PATH + "/{Name*}" });
 
             appHost.GetPlugin<MetadataFeature>()
-                .AddPluginLink("swagger-ui/", "Swagger UI");
+                .AddPluginLink(_swaggerFolderName + "/", _swaggerLinkText);
 
             appHost.CatchAllHandlers.Add((httpMethod, pathInfo, filePath) =>
             {
-                if (pathInfo == "/swagger-ui" || pathInfo == "/swagger-ui/" || pathInfo == "/swagger-ui/default.html")
+                if (pathInfo == "/" + _swaggerFolderName || pathInfo == string.Format("/{0}/", _swaggerFolderName) || pathInfo == string.Format("/{0}/default.html", _swaggerFolderName))
                 {
-                    var indexFile = appHost.VirtualPathProvider.GetFile("/swagger-ui/index.html");
+                    var indexFile = appHost.VirtualPathProvider.GetFile(string.Format("/{0}/index.html", _swaggerFolderName));
                     if (indexFile != null)
                     {
                         var html = indexFile.ReadAllText();
