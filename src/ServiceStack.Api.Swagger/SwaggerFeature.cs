@@ -21,10 +21,9 @@ namespace ServiceStack.Api.Swagger
 
         public Action<ModelProperty> ModelPropertyFilter { get; set; }
 
-        private readonly string _swaggerFolderName;
+        private readonly string swaggerFolderName;
 
-        private readonly string _swaggerLinkText;
-
+        private readonly string swaggerLinkText;
 
         public SwaggerFeature()
             : this("swagger-ui", "Swagger UI")
@@ -33,8 +32,8 @@ namespace ServiceStack.Api.Swagger
 
         public SwaggerFeature(string swaggerFolderName, string swaggerLinkText)
         {
-            _swaggerFolderName = swaggerFolderName;
-            _swaggerLinkText = swaggerLinkText;
+            this.swaggerFolderName = swaggerFolderName;
+            this.swaggerLinkText = swaggerLinkText;
         }
 
         public void Register(IAppHost appHost)
@@ -52,13 +51,13 @@ namespace ServiceStack.Api.Swagger
             appHost.RegisterService(typeof(SwaggerApiService), new[] { SwaggerResourcesService.RESOURCE_PATH + "/{Name*}" });
 
             appHost.GetPlugin<MetadataFeature>()
-                .AddPluginLink(_swaggerFolderName + "/", _swaggerLinkText);
+                .AddPluginLink(swaggerFolderName + "/", swaggerLinkText);
 
             appHost.CatchAllHandlers.Add((httpMethod, pathInfo, filePath) =>
             {
-                if (pathInfo == "/" + _swaggerFolderName || pathInfo == string.Format("/{0}/", _swaggerFolderName) || pathInfo == string.Format("/{0}/default.html", _swaggerFolderName))
+                if (pathInfo == "/" + swaggerFolderName || pathInfo == string.Format("/{0}/", swaggerFolderName) || pathInfo == string.Format("/{0}/default.html", swaggerFolderName))
                 {
-                    var indexFile = appHost.VirtualPathProvider.GetFile(string.Format("/{0}/index.html", _swaggerFolderName));
+                    var indexFile = appHost.VirtualPathProvider.GetFile(string.Format("/{0}/index.html", swaggerFolderName));
                     if (indexFile != null)
                     {
                         var html = indexFile.ReadAllText();
